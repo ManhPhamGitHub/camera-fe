@@ -1,0 +1,46 @@
+.side__menu-container {
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.05);
+
+    .side__menu-logo {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin: 32px auto;
+    }
+
+    .ant-menu {
+        background-color: #fff;
+        color: var(--text-color);
+
+        .ant-menu-item {
+            &:hover {
+                background-color: var(--primary-color) !important;
+                color: black !important;
+            }
+            &.ant-menu-item-selected {
+                color: black;
+            }
+        }
+    }
+
+    .log__out-section {
+        padding-left: 24px;
+        width: calc(100% - 8px);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        border-radius: 8px;
+        margin: 0px 4px 35px;
+        min-height: 40px;
+        transition: 0.15s all ease-in-out;
+        font-size: 15px;
+
+        &:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+    }
+}

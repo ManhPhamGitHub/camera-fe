@@ -1,0 +1,17 @@
+.custom__input-container {
+    input {
+        border-color: #555;
+        font-family: inherit;
+    
+        &::placeholder {
+            font-family: inherit;
+            font-size: 14px;
+        }
+    }
+}
+
+.input__search {
+    .ant-input-search-button {
+        border-color: #555;
+    }
+}
