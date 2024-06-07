@@ -11,12 +11,13 @@ const SideMenu = () => {
   const navigation = useNavigate();
 
   const getDefaultMenuItems = useMemo(() => {
-    let ROUTES_NEED_TO_SHOW = ['/', '/reports', '/employee', '/department', '/benefit', '/contract'];
-    return publicRoutes
-      .filter(route => ROUTES_NEED_TO_SHOW.includes(route.path))
-      .map(filteredRoute => ({ key: filteredRoute.path, icon: filteredRoute.pageIcon, label: filteredRoute.label }));
+    return publicRoutes.map(filteredRoute => ({
+      key: filteredRoute.path,
+      icon: filteredRoute.pageIcon,
+      label: filteredRoute.label
+    }));
   }, []);
- 
+
   const handleNavigateToAnotherPage = e => {
     const redirectURL = `${e.key}`;
 
@@ -30,7 +31,6 @@ const SideMenu = () => {
 
   return (
     <div className="side__menu-container">
-      <img src={mainLogo} alt="TLU LOGO" className="side__menu-logo" />
       <Menu
         defaultSelectedKeys={[defaultActiveMenu]}
         mode="inline"

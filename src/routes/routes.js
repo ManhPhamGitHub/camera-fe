@@ -1,14 +1,28 @@
 import config from '../config';
 import Home from '../pages/home/home';
-import {
-  AppstoreOutlined,
-} from '@ant-design/icons';
+import Camera from '../pages/camera/camera';
+
+import { AppstoreOutlined, VideoCameraOutlined, NotificationOutlined } from '@ant-design/icons';
 const publicRoutes = [
   {
     path: config.routes.home,
     element: <Home />,
     pageIcon: <AppstoreOutlined />,
     label: 'Trang chủ',
+    needShowSideMenu: true
+  },
+  {
+    path: config.routes.camera,
+    element: <Camera />,
+    pageIcon: <VideoCameraOutlined />,
+    label: 'Quản lý',
+    needShowSideMenu: true
+  },
+  {
+    path: config.routes.storage,
+    element: <Home />,
+    pageIcon: <NotificationOutlined />,
+    label: 'Lưu trữ',
     needShowSideMenu: true
   }
 ];
