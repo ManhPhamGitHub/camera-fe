@@ -26,7 +26,7 @@ const Home = () => {
     // fluid: true,
     sources: [
       {
-        src: 'https://storage.googleapis.com/ducmanhpham/2024-06-07/14/output_2024-06-07_14.m3u8',
+        src: 'http://localhost:3456/storage/2024-06-07/14/output_2024-06-05_14.m3u8',
         type: 'application/x-mpegURL'
       }
     ]
