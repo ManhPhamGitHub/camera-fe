@@ -5,8 +5,14 @@ import 'video.js/dist/video-js.css';
 export const VideoPlayer = props => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
-  const { options, onReady } = props;
-
+  const { onReady } = props;
+  const options = {
+    controls: true,
+    responsive: true,
+    fluid: true,
+    preload: 'auto'
+  };
+  console.log('propsprops', props);
   useEffect(() => {
     // Make sure Video.js player is only initialized once
     if (!playerRef.current) {
@@ -16,7 +22,7 @@ export const VideoPlayer = props => {
       videoElement.classList.add('vjs-big-play-centered');
       videoRef.current.appendChild(videoElement);
 
-      const player = (playerRef.current = videojs(videoElement, options, () => {
+      const player = (playerRef.current = videojs(videoElement, { ...options, ...props.source }, () => {
         videojs.log('player is ready');
         onReady && onReady(player);
       }));
@@ -44,7 +50,7 @@ export const VideoPlayer = props => {
   }, [playerRef]);
 
   return (
-    <div data-vjs-player style={{ width: '600px' }}>
+    <div data-vjs-player style={{ width: '100%' }}>
       <div ref={videoRef} />
     </div>
   );

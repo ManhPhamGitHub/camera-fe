@@ -10,7 +10,7 @@ const HLSPlayer = ({ videoUrl }) => {
       hls.loadSource(videoUrl);
       hls.attachMedia(videoRef.current);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        // videoRef.current.play();
+        videoRef.current.play();
       });
 
       return () => {
@@ -19,14 +19,14 @@ const HLSPlayer = ({ videoUrl }) => {
     } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
       videoRef.current.src = videoUrl;
       videoRef.current.addEventListener('loadedmetadata', () => {
-        // videoRef.current.play();
+        videoRef.current.play();
       });
     }
   }, [videoUrl]);
 
   return (
     <div>
-      <video ref={videoRef} controls width="640" height="360" />
+      <video ref={videoRef} controls muted width="640" height="360" />
     </div>
   );
 };

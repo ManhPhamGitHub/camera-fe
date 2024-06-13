@@ -1,6 +1,7 @@
 import config from '../config';
 import Home from '../pages/home/home';
 import Camera from '../pages/camera/camera';
+import StorageComponent from '../pages/storage/storage'
 
 import { AppstoreOutlined, VideoCameraOutlined, NotificationOutlined } from '@ant-design/icons';
 const publicRoutes = [
@@ -20,7 +21,7 @@ const publicRoutes = [
   },
   {
     path: config.routes.storage,
-    element: <Home />,
+    element: <StorageComponent />,
     pageIcon: <NotificationOutlined />,
     label: 'Lưu trữ',
     needShowSideMenu: true

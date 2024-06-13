@@ -1,59 +1,64 @@
 import './home.scss';
-import { useEffect, useState, useRef } from 'react';
-import { httpGet, httpPut } from '../../services/request';
-import { getAPIHostName, removeTimeFromDate, fallbackToDefaultAvatar, translateStatus } from '../../utils';
-import { Row, Grid } from 'antd';
-import { CameraOutlined } from '@ant-design/icons';
-import Button from '../../components/button/button';
-import { uploadImage } from '../../config/aws';
+import { useState, useEffect } from 'react';
+import { dateFormmated, currentHours, getAPIUrl, getAPIHostName } from '../../utils';
+import { Modal, notification, Carousel } from 'antd';
 import 'hls-video-element';
-// import { VideoJS } from './video';
-import Videojs from './video';
-import videojs from 'video.js';
+import { httpGet } from '../../services/request';
 import HLSVideoPlayer from './hls';
-
+const contentStyle = {
+  margin: 0,
+  height: '160px',
+  color: '#fff',
+  lineHeight: '160px',
+  textAlign: 'center',
+  background: '#364d79'
+};
 const Home = () => {
-  const playerRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState();
+  const [cameraConfig, setCamConfig] = useState([]);
 
-  const videoJsOptions = {
-    // autoplay: true,
-    controls: true,
-    responsive: true,
-    fluid: true,
-    // controls: true,
-    // autoplay: true,
-    preload: 'auto',
-    // fluid: true,
-    sources: [
-      {
-        src: 'http://localhost:3456/storage/2024-06-07/14/output_2024-06-05_14.m3u8',
-        type: 'application/x-mpegURL'
-      }
-    ]
-  };
+  useEffect(() => {
+    const getCamConfig = () => {
+      const url = `${getAPIHostName()}/camera/config`;
+      httpGet(url)
+        .then(res => {
+          console.log('resres', res);
+          if (res.status === 1) {
+            setCamConfig(res.data);
+            setCameraOpen(res.data[0]);
+          }
+        })
+        .catch(() => {
+          notification.error({
+            title: 'Lỗi',
+            message: 'Không thể lấy thông tin người dùng'
+          });
+        });
+    };
+    getCamConfig();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handlePlayerReady = player => {
-    playerRef.current = player;
-
-    // You can handle player events here, for example:
-    player.on('waiting', () => {
-      videojs.log('player is waiting');
-    });
-
-    player.on('dispose', () => {
-      videojs.log('player will dispose');
-    });
-  };
-
+  console.log('cameraConfig', cameraConfig);
+  if (!cameraConfig.length) return <></>;
   return (
-    <>
-      <div>
-        <Videojs options={videoJsOptions} onReady={handlePlayerReady} />
-        <HLSVideoPlayer
-          videoUrl={'https://storage.googleapis.com/ducmanhpham/2024-06-07/14/output_2024-06-07_14.m3u8'}
-        />
-      </div>
-    </>
+    <div>
+      <HLSVideoPlayer
+        videoUrl={`${getAPIUrl()}/storage/${
+          cameraOpen.cam.name
+        }/${dateFormmated}/${currentHours}/output_${dateFormmated}_${currentHours}.m3u8`}
+      />
+      <Carousel arrows infinite={false}>
+        {cameraConfig.map(camera => (
+          <div key={camera.id} style={contentStyle}>
+            <h3>{camera.cam.name}</h3>
+            <p>{camera.cam.description}</p>
+            <button onClick={() => setCameraOpen(camera)}>Xem</button>
+          </div>
+        ))}
+      </Carousel>
+    </div>
   );
 };
 

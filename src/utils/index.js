@@ -1,9 +1,12 @@
 import defaultAvatar from '../assets/images/default_avatar.jpg';
 import process from 'process/browser';
 
-export const getAPIHostName = () => {
-  console.log('process.env.BACKEND_BASE_URL', process.env.REACT_APP_BACKEND_BASE_URL);
+export const getAPIUrl = () => {
   return process.env.REACT_APP_BACKEND_BASE_URL;
+};
+
+export const getAPIHostName = () => {
+  return process.env.REACT_APP_BACKEND_BASE_URL + '/api/v1';
 };
 
 export const normalizeDate = date => {
@@ -107,3 +110,11 @@ export const checkIsEmpty = value => {
 export const locale = {
   emptyText: <div>Không có dữ liệu</div>
 };
+
+export const currentDate = new Date();
+
+export const currentYear = currentDate.getFullYear();
+export const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0'); // Adding 1 because months are zero-based
+export const currentDay = String(currentDate.getDate()).padStart(2, '0');
+export const currentHours = String(currentDate.getHours()).padStart(2, '0');
+export const dateFormmated = `${currentYear}-${currentMonth}-${currentDay}`;
