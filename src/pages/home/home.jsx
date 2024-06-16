@@ -1,7 +1,7 @@
 import './home.scss';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { dateFormmated, currentHours, getAPIUrl, getAPIHostName } from '../../utils';
-import { Modal, notification, Carousel } from 'antd';
+import { Modal, notification, Carousel, Card, Button } from 'antd';
 import 'hls-video-element';
 import { httpGet } from '../../services/request';
 import HLSVideoPlayer from './hls';
@@ -13,8 +13,10 @@ const contentStyle = {
   textAlign: 'center',
   background: '#364d79'
 };
+
+const { Meta } = Card;
+
 const Home = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [cameraOpen, setCameraOpen] = useState();
   const [cameraConfig, setCamConfig] = useState([]);
 
@@ -39,25 +41,51 @@ const Home = () => {
     getCamConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const carouselRef = useRef(null);
+  const slidesToShow = 3;
+  const next = () => {
+    carouselRef.current.next();
+  };
 
+  const prev = () => {
+    carouselRef.current.prev();
+  };
   console.log('cameraConfig', cameraConfig);
   if (!cameraConfig.length) return <></>;
   return (
     <div>
-      <HLSVideoPlayer
-        videoUrl={`${getAPIUrl()}/storage/${
-          cameraOpen.cam.name
-        }/${dateFormmated}/${currentHours}/output_${dateFormmated}_${currentHours}.m3u8`}
-      />
-      <Carousel arrows infinite={false}>
-        {cameraConfig.map(camera => (
-          <div key={camera.id} style={contentStyle}>
-            <h3>{camera.cam.name}</h3>
-            <p>{camera.cam.description}</p>
-            <button onClick={() => setCameraOpen(camera)}>Xem</button>
-          </div>
-        ))}
-      </Carousel>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 30 }}>
+        <HLSVideoPlayer
+          videoUrl={`${getAPIUrl()}/storage/${
+            cameraOpen.cam.name
+          }/${dateFormmated}/${currentHours}/output_${dateFormmated}_${currentHours}.m3u8`}
+        />
+      </div>
+      <div style={{ position: 'relative' }}>
+        <Button onClick={prev} style={{ position: 'absolute', top: 50, left: 0 }}>
+          Prev
+        </Button>
+        <Carousel
+          style={{ margin: '0 50px' }}
+          ref={carouselRef}
+          slidesToScroll={slidesToShow}
+          slidesToShow={3}
+        >
+          {cameraConfig.map(camera => (
+            <div style={{ width: '100%' }} key={camera.id}>
+              <Card hoverable style={{ width: '90%', margin: 'auto' }} onClick={() => setCameraOpen(camera)}>
+                <Meta title={camera.cam.name} description={camera.cam.description} />
+                <p>IP Address: {camera.cam.ipAddress}</p>
+                <p>Start Time: {new Date(camera.cam.startTime).toLocaleString()}</p>
+                <p>Active: {camera.cam.active ? 'Yes' : 'No'}</p>
+              </Card>
+            </div>
+          ))}
+        </Carousel>
+        <Button onClick={next} style={{ position: 'absolute', top: 50, right: 0 }}>
+          Next
+        </Button>
+      </div>
     </div>
   );
 };

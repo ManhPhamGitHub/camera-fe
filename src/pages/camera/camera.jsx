@@ -1,14 +1,14 @@
 import './camera.scss';
 import { useEffect, useState } from 'react';
-import { httpGet, httpPut } from '../../services/request';
+import { httpGet, httpPost, httpPut } from '../../services/request';
 import { getAPIHostName, removeTimeFromDate, fallbackToDefaultAvatar, translateStatus } from '../../utils';
 import { uploadImage } from '../../config/aws';
-import { Space, Table, Tag, Col, Row, Input, Select, Card, Button, Switch } from 'antd';
+import { Space, Table, Tag, Col, Row, Input, Select, Card, Button, Switch, notification } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 const Camera = () => {
   const [img, setImg] = useState(null);
   const [camSelected, setCamSelected] = useState();
-  const [selectedRowKey, setSelectedRowKey] = useState(null);
+  const [camUpdate, setCamUpdate] = useState(null);
 
   useEffect(() => {
     // const getUserDetail = () => {
@@ -36,29 +36,23 @@ const Camera = () => {
   }, []);
 
   const handleUpdateUser = async userId => {
-    // const url = `${getAPIHostName()}/users/${userId}`;
-    // let buildBodyToUpdate = {
-    //   username: userName
-    // };
-    // httpPut(url, buildBodyToUpdate, accessToken)
-    //   .then(res => {
-    //     if (res.success) {
-    //       const { user_avatar, username } = res.data;
-    //       setAccountAvatar(user_avatar);
-    //       setAccountName(username);
-    //       setImg(null);
-    //       notification.success({
-    //         title: 'Thành công',
-    //         message: 'Cập nhật thông tin thành công'
-    //       });
-    //     }
-    //   })
-    //   .catch(() => {
-    //     notification.error({
-    //       title: 'Lỗi',
-    //       message: 'Cập nhật thông tin thất bại'
-    //     });
-    //   });
+    const url = `${getAPIHostName()}/camera`;
+
+    httpPost(url, {})
+      .then(res => {
+        if (res.success) {
+          notification.success({
+            title: 'Thành công',
+            message: 'Cập nhật thông tin thành công'
+          });
+        }
+      })
+      .catch(() => {
+        notification.error({
+          title: 'Lỗi',
+          message: 'Cập nhật thông tin thất bại'
+        });
+      });
   };
   const columns = [
     {
@@ -130,6 +124,34 @@ const Camera = () => {
     return record.key === camSelected?.key ? 'selected-row' : '';
   };
 
+  const CheckConnection = () => {
+    const url = `${getAPIHostName()}/camera/check-connection?url='123'`;
+    httpGet(url)
+      .then(res => {
+        console.log('resres', res);
+        if (res.status === 1 && res.data.success === true) {
+          notification.success({
+            title: 'Connect success',
+            message: 'Connect success'
+          });
+        } else {
+          notification.error({
+            title: 'Lỗi',
+            message: 'Connect fail'
+          });
+        }
+      })
+      .catch(() => {
+        notification.error({
+          title: 'Lỗi',
+          message: 'Connect fail'
+        });
+      });
+  };
+
+  const onChangeCam = () =>{
+    setcamUpdate(!camUpdate)
+  }
   return (
     <Row justify={'space-between'}>
       <Col span={8}>
@@ -150,21 +172,45 @@ const Camera = () => {
       </Col>
       {camSelected?.key ? (
         <Col span={12}>
-          <Card style={{ width: '100%' }} title="Default size card" extra={<Button>Save</Button>}>
+          <Card
+            style={{ width: '100%' }}
+            title="Default size card"
+            extra={
+              <Button
+                onClick={() => {
+                  handleUpdateUser(camSelected.key);
+                }}
+              >
+                Save
+              </Button>
+            }
+          >
             <h2>Camera selected: </h2>
-            <Input placeholder="Channel" prefix={<SendOutlined />} />
-            <Input placeholder="Link" prefix={<SendOutlined />} />
-            <Input placeholder="Input" prefix={<SendOutlined />} />
-            <Input placeholder="Output" prefix={<SendOutlined />} />
-            <Input placeholder="Link" prefix={<SendOutlined />} />
-            <Select
-              defaultValue="google"
-              style={{ width: 120 }}
-              options={[
-                { value: 'google', label: 'google' },
-                { value: 'cloudinary', label: 'cloudinary' }
-              ]}
-            />
+            <div style={{ width: '50%' }}>
+              <Input placeholder="Name" prefix={<SendOutlined />} />
+            </div>
+            <div style={{ width: '50%' }}>
+              <Input placeholder="Output" prefix={<SendOutlined />} />
+            </div>
+            <div style={{ width: '50%' }}>
+              <Input placeholder="Input" prefix={<SendOutlined />} />
+            </div>
+            <div style={{ display: 'flex' }}>
+              <div style={{ width: '50%', marginRight: 20 }}>
+                <Input placeholder="Link" prefix={<SendOutlined />} />
+              </div>
+              <Button onClick={CheckConnection}>Check connection</Button>
+            </div>
+            <div style={{ width: '50%' }}>
+              <Select
+                defaultValue="google"
+                style={{ width: 120 }}
+                options={[
+                  { value: 'google', label: 'google' },
+                  { value: 'cloudinary', label: 'cloudinary' }
+                ]}
+              />
+            </div>
           </Card>
         </Col>
       ) : null}

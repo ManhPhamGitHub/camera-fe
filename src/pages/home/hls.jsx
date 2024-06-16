@@ -24,11 +24,7 @@ const HLSPlayer = ({ videoUrl }) => {
     }
   }, [videoUrl]);
 
-  return (
-    <div>
-      <video ref={videoRef} controls muted width="640" height="360" />
-    </div>
-  );
+  return <video ref={videoRef} controls muted width="1280" height="720" />;
 };
 
 export default HLSPlayer;

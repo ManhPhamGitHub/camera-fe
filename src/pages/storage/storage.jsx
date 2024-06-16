@@ -7,33 +7,6 @@ import { getAPIHostName } from '../../utils';
 
 const { Panel } = Collapse;
 
-// const data = [
-//   {
-//     id: '3a1a3c77-f3be-4bd6-a9c1-f8cea4a4fe2f',
-//     idCam: '2576f41a-8dfc-405d-a5a2-8001476c40e4',
-//     input: 'rtsp://localhost:8554/mystream',
-//     output: 'string',
-//     storages: [
-//       {
-//         name: 'output_2024-06-13_11.m3u8',
-//         url: 'https://storage.googleapis.com/ducmanhpham',
-//         link: 'https://storage.googleapis.com',
-//         path: 'string/2024-06-13/11',
-//         idCamConfig: '3a1a3c77-f3be-4bd6-a9c1-f8cea4a4fe2f'
-//       }
-//     ],
-//     cam: {
-//       id: '2576f41a-8dfc-405d-a5a2-8001476c40e4',
-//       name: 'string',
-//       ipAddress: 'string',
-//       startTime: '2024-06-12T10:28:05.726Z',
-//       endTime: null,
-//       description: 'string',
-//       active: true
-//     }
-//   }
-// ];
-
 const CameraCollapse = () => {
   const [visible, setVisible] = useState(false);
   const [selectedStorage, setSelectedStorage] = useState(null);
