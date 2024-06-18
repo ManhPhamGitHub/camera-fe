@@ -1,13 +1,18 @@
 import './camera.scss';
 import { useEffect, useState } from 'react';
-import { httpGet, httpPost } from '../../services/request';
+import { httpGet, httpPost, httpPut } from '../../services/request';
 import { getAPIHostName, removeTimeFromDate, hasEmptyProperties } from '../../utils';
-import { Space, Table, Tag, Col, Row, Input, Select, Card, Button, Switch, notification, Upload } from 'antd';
-import { SendOutlined, UploadOutlined } from '@ant-design/icons';
+import { Space, Table, Tag, Col, Row, Input, Select, Card, Button, Switch, notification, Upload, Modal } from 'antd';
+import { SendOutlined, UploadOutlined, SettingOutlined } from '@ant-design/icons';
+import { channel } from 'process';
 const { TextArea } = Input;
 
 const Camera = () => {
+  const defaultSettingCam = { channel: 'discord', config: { link: '' } };
   const [camSelected, setCamSelected] = useState();
+  const [settingCam, setSettingCam] = useState(defaultSettingCam);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [cameraConfig, setCamConfig] = useState([]);
   const [uploadMessage, setUploadMessage] = useState();
 
@@ -30,6 +35,7 @@ const Camera = () => {
     getCamConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  console.log('camSelected', camSelected);
 
   const handleUpdateUser = async userId => {
     const url = `${getAPIHostName()}/camera`;
@@ -120,9 +126,13 @@ const Camera = () => {
         providerName: record.provider.providerName,
         config: record.provider.config
       });
+      setSettingCam({
+        idCam: record.cam.id,
+        channel: record.notis.length ? record.notis[0].channel : 'discord',
+        config: { link: record.notis.length ? record.notis[0].config.link : '' }
+      });
     }
   };
-
   const rowClassName = record => {
     return record.id === camSelected?.id ? 'selected-row' : '';
   };
@@ -193,7 +203,36 @@ const Camera = () => {
     }
   };
 
-  console.log('camSelected', camSelected);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    const url = `${getAPIHostName()}/camera/${settingCam.idCam}`;
+
+    httpPut(url, settingCam)
+      .then(res => {
+        if (res.success) {
+          notification.success({
+            title: 'Thành công',
+            message: 'Cập nhật thông tin thành công'
+          });
+          setIsModalOpen(false);
+          setSettingCam(defaultSettingCam);
+          camSelected(null);
+        }
+      })
+      .catch(() => {
+        notification.error({
+          title: 'Lỗi',
+          message: 'Cập nhật thông tin thất bại'
+        });
+      });
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <Row justify={'space-between'}>
@@ -218,13 +257,20 @@ const Camera = () => {
             style={{ width: '100%' }}
             title="Update camera"
             extra={
-              <Button
-                onClick={() => {
-                  handleUpdateUser(camSelected.key);
-                }}
-              >
-                Save
-              </Button>
+              <div>
+                <Button
+                  onClick={() => setIsModalOpen(!isModalOpen)}
+                  icon={<SettingOutlined />}
+                  style={{ marginRight: 10 }}
+                ></Button>
+                <Button
+                  onClick={() => {
+                    handleUpdateUser(camSelected.key);
+                  }}
+                >
+                  Save
+                </Button>
+              </div>
             }
           >
             <h2>Camera selected: </h2>
@@ -269,12 +315,14 @@ const Camera = () => {
             </div>
             <div style={{ display: 'flex' }}>
               <div style={{ width: '50%' }}>
-                <div value={camSelected?.providerName}>
+                <div>
                   <Select
-                    defaultValue="google"
+                    value={camSelected?.providerName}
+                    defaultValue="google-cloud"
                     id={'providerName'}
                     style={{ width: 120 }}
-                    options={[{ value: 'google', label: 'google' }]}
+                    options={[{ value: 'google-cloud', label: 'google-cloud' }]}
+                    onChange={value => setCamSelected({ ...camSelected, providerName: value })}
                   />
                 </div>
                 <div style={{ margin: '20px  0' }}>
@@ -283,7 +331,10 @@ const Camera = () => {
                     placeholder="storage name"
                     prefix={<SendOutlined />}
                     onChange={e =>
-                      setCamSelected({ ...camSelected, config: { ...camSelected.config, name: e.target.value } })
+                      setCamSelected({
+                        ...camSelected,
+                        config: { ...camSelected.config, name: e.target.value, link: 'https://storage.googleapis.com' }
+                      })
                     }
                   />
                 </div>
@@ -320,6 +371,32 @@ const Camera = () => {
           </Card>
         </Col>
       ) : null}
+      <Modal title="Notification Setting" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+        <div>
+          <Select
+            value={settingCam.channel}
+            style={{ width: 120 }}
+            options={[
+              { value: 'discord', label: 'discord' },
+              { value: 'email', label: 'email', disabled: true }
+            ]}
+            onChange={value => setSettingCam({ ...settingCam, channel: value })}
+          />
+        </div>
+        <Input
+          value={settingCam.config.link}
+          placeholder="Link URL or email"
+          onChange={e =>
+            setSettingCam({
+              ...settingCam,
+              config: {
+                ...settingCam?.config,
+                link: e.target.value
+              }
+            })
+          }
+        />
+      </Modal>
     </Row>
   );
 };

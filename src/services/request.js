@@ -75,14 +75,14 @@ export function httpPost(url, body = {}) {
 }
 
 export function httpPut(url, body = {}, token) {
-  if (token) {
-    headers.authorization = `Bearer ${token}`;
-  }
+  const headers = {
+    'Content-Type': 'application/json'
+  };
 
   const options = {
     method: 'put',
     headers: headers,
-    body: objectToFormData(body)
+    body: JSON.stringify(body)
   };
   return fetch(url, options).then(res => checkHttpStatus(res, { ...options, url }));
 }
