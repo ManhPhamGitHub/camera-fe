@@ -11,6 +11,12 @@ export const VideoPlayer = props => {
     responsive: true,
     fluid: true,
     preload: 'auto'
+    // sources: [
+    //   {
+    //     src: props.source,
+    //     type: 'application/x-mpegURL'
+    //   }
+    // ]
   };
   console.log('propsprops', props);
   useEffect(() => {
@@ -22,7 +28,7 @@ export const VideoPlayer = props => {
       videoElement.classList.add('vjs-big-play-centered');
       videoRef.current.appendChild(videoElement);
 
-      const player = (playerRef.current = videojs(videoElement, { ...options, ...props.source }, () => {
+      const player = (playerRef.current = videojs(videoElement, { ...options, sources: props.source }, () => {
         videojs.log('player is ready');
         onReady && onReady(player);
       }));

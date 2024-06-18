@@ -107,6 +107,18 @@ export const checkIsEmpty = value => {
   return value?.toString().trim() === '';
 };
 
+export const hasEmptyProperties = (obj) => {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const value = obj[key];
+      if (value === null || value === undefined || value === '') {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
 export const locale = {
   emptyText: <div>Không có dữ liệu</div>
 };

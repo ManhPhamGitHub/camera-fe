@@ -63,15 +63,13 @@ export function httpGet(url) {
   return fetch(url, options).then(res => checkHttpStatus(res, { ...options, url }));
 }
 
-export function httpPost(url, body = {}, token) {
-  if (token) {
-    headers.authorization = `Bearer ${token}`;
-  }
-
+export function httpPost(url, body = {}) {
   const options = {
     method: 'post',
-    headers: headers,
-    body: objectToFormData(body)
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json'
+    }
   };
   return fetch(url, options).then(res => checkHttpStatus(res, { ...options, url }));
 }

@@ -1,50 +1,53 @@
 import './camera.scss';
 import { useEffect, useState } from 'react';
-import { httpGet, httpPost, httpPut } from '../../services/request';
-import { getAPIHostName, removeTimeFromDate, fallbackToDefaultAvatar, translateStatus } from '../../utils';
-import { uploadImage } from '../../config/aws';
-import { Space, Table, Tag, Col, Row, Input, Select, Card, Button, Switch, notification } from 'antd';
-import { SendOutlined } from '@ant-design/icons';
+import { httpGet, httpPost } from '../../services/request';
+import { getAPIHostName, removeTimeFromDate, hasEmptyProperties } from '../../utils';
+import { Space, Table, Tag, Col, Row, Input, Select, Card, Button, Switch, notification, Upload } from 'antd';
+import { SendOutlined, UploadOutlined } from '@ant-design/icons';
+const { TextArea } = Input;
+
 const Camera = () => {
-  const [img, setImg] = useState(null);
   const [camSelected, setCamSelected] = useState();
-  const [camUpdate, setCamUpdate] = useState(null);
+  const [cameraConfig, setCamConfig] = useState([]);
+  const [uploadMessage, setUploadMessage] = useState();
 
   useEffect(() => {
-    // const getUserDetail = () => {
-    //   const url = `${getAPIHostName()}/users/find/${userId}`;
-    //   setPageLoading(true);
-    //   httpGet(url)
-    //     .then(res => {
-    //       if (res.success) {
-    //         setUserInfor(res.data);
-    //         setUserName(res.data.username);
-    //         setAccountAvatar(res.data.user_avatar);
-    //       }
-    //       setPageLoading(false);
-    //     })
-    //     .catch(() => {
-    //       notification.error({
-    //         title: 'Lỗi',
-    //         message: 'Không thể lấy thông tin người dùng'
-    //       });
-    //       setPageLoading(false);
-    //     });
-    // };
-    // getUserDetail();
+    const getCamConfig = () => {
+      const url = `${getAPIHostName()}/camera/config`;
+      httpGet(url)
+        .then(res => {
+          if (res.status === 1) {
+            setCamConfig(res.data);
+          }
+        })
+        .catch(() => {
+          notification.error({
+            title: 'Lỗi',
+            message: 'Không thể lấy thông tin người dùng'
+          });
+        });
+    };
+    getCamConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleUpdateUser = async userId => {
     const url = `${getAPIHostName()}/camera`;
-
-    httpPost(url, {})
+    if (hasEmptyProperties(camSelected)) {
+      notification.error({
+        title: 'Lỗi',
+        message: 'Vui lòng điền đầy đủ thông tin'
+      });
+      return;
+    }
+    httpPost(url, camSelected)
       .then(res => {
         if (res.success) {
           notification.success({
             title: 'Thành công',
             message: 'Cập nhật thông tin thành công'
           });
+          camSelected(null);
         }
       })
       .catch(() => {
@@ -57,75 +60,84 @@ const Camera = () => {
   const columns = [
     {
       title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: text => <a>{text}</a>
+      dataIndex: ['cam', 'name'],
+      key: 'cam.name'
     },
     {
-      title: 'Tags',
-      key: 'tags',
-      dataIndex: 'tags',
-      render: (_, { tags }) => (
-        <>
-          {tags.map(tag => {
-            let color = tag.length > 5 ? 'geekblue' : 'green';
-            if (tag === 'loser') {
-              color = 'volcano';
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      )
+      title: 'description',
+      dataIndex: ['cam', 'description'],
+      key: 'cam.description'
+    },
+    {
+      title: 'startTime',
+      dataIndex: ['cam', 'startTime'],
+      key: 'cam.startTime',
+      render: (_, record) => <Tag color="green">{removeTimeFromDate(record.cam.startTime)}</Tag>
+    },
+    {
+      title: 'ipAddress',
+      dataIndex: ['cam', 'ipAddress'],
+      key: 'cam.ipAddress'
     },
     {
       title: 'Action',
       key: 'action',
-      render: (_, record) => <Switch defaultChecked />
+      render: (event, record) => (
+        <div onClick={e => e.stopPropagation()}>
+          <Switch checked={record.cam.active} onChange={checked => handleSwitchChange(checked, record)} />
+        </div>
+      )
     }
   ];
 
-  const data = [
-    {
-      key: '1',
-      name: 'John Brown',
-      age: 32,
-      address: 'New York No. 1 Lake Park',
-      tags: ['nice', 'developer']
-    },
-    {
-      key: '2',
-      name: 'Jim Green',
-      age: 42,
-      address: 'London No. 1 Lake Park',
-      tags: ['loser']
-    },
-    {
-      key: '3',
-      name: 'Joe Black',
-      age: 32,
-      address: 'Sydney No. 1 Lake Park',
-      tags: ['cool', 'teacher']
-    }
-  ];
+  const handleSwitchChange = (checked, record) => {
+    setCamConfig(prevState => {
+      return prevState.map(item => {
+        if (item.id === record.id) {
+          return {
+            ...item,
+            cam: {
+              ...item.cam,
+              active: checked
+            }
+          };
+        }
+      });
+    });
+  };
 
   const handleRowClick = record => {
-    if (record.key === camSelected?.key) {
+    if (record.id === camSelected?.id) {
       setCamSelected(null);
     } else {
-      setCamSelected(record);
+      setCamSelected({
+        id: record.id,
+        name: record.cam.name,
+        ipAddress: record.cam.ipAddress,
+        description: record.cam.description,
+        input: record.input,
+        output: record.output,
+        providerName: record.provider.providerName,
+        config: record.provider.config
+      });
     }
   };
 
   const rowClassName = record => {
-    return record.key === camSelected?.key ? 'selected-row' : '';
+    return record.id === camSelected?.id ? 'selected-row' : '';
   };
+  if (cameraConfig.length === 0) return <></>;
 
   const CheckConnection = () => {
-    const url = `${getAPIHostName()}/camera/check-connection?url='123'`;
+    if (!camSelected?.input || !camSelected?.input.includes('rtsp')) {
+      notification.error({
+        title: 'Lỗi',
+        message: 'Input is not valid'
+      });
+      return;
+    }
+
+    const url = `${getAPIHostName()}/camera/check-connection?url=${camSelected?.input}`;
     httpGet(url)
       .then(res => {
         console.log('resres', res);
@@ -149,15 +161,46 @@ const Camera = () => {
       });
   };
 
-  const onChangeCam = () =>{
-    setcamUpdate(!camUpdate)
-  }
+  const handleOnchange = e => {
+    console.log('e', e.target);
+    setCamSelected({
+      ...camSelected,
+      [e.target.id]: e.target.value
+    });
+  };
+
+  const handleFileChange = async info => {
+    if (info.file.status !== 'uploading') {
+    }
+    if (info.file.status === 'done') {
+      const file = info.file.originFileObj;
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        try {
+          const json = JSON.parse(e.target.result);
+          setCamSelected({ ...camSelected, identify: json });
+          setUploadMessage(info.file.name);
+          // notification.success({ message: `${info.file.name} file uploaded successfully` });
+        } catch (error) {
+          notification.error({ message: 'Error parsing JSON file' });
+        }
+      };
+
+      reader.readAsText(file);
+    } else if (info.file.status === 'error') {
+      notification.error({ message: `${info.file.name} file upload failed.` });
+    }
+  };
+
+  console.log('camSelected', camSelected);
+
   return (
     <Row justify={'space-between'}>
       <Col span={8}>
-        <Button>Add</Button>
+        <Button onClick={() => (camSelected ? setCamSelected(null) : setCamSelected({}))}>Add</Button>
         <Table
-          dataSource={data}
+          dataSource={cameraConfig}
           columns={columns}
           onRow={(record, rowIndex) => {
             return {
@@ -168,13 +211,12 @@ const Camera = () => {
           }}
           rowClassName={rowClassName}
         />
-        ;
       </Col>
-      {camSelected?.key ? (
+      {camSelected ? (
         <Col span={12}>
           <Card
             style={{ width: '100%' }}
-            title="Default size card"
+            title="Update camera"
             extra={
               <Button
                 onClick={() => {
@@ -187,28 +229,92 @@ const Camera = () => {
           >
             <h2>Camera selected: </h2>
             <div style={{ width: '50%' }}>
-              <Input placeholder="Name" prefix={<SendOutlined />} />
+              <Input
+                id="name"
+                value={camSelected?.name}
+                placeholder="Name"
+                prefix={<SendOutlined />}
+                onChange={handleOnchange}
+              />
+            </div>
+            <div style={{ width: '50%', margin: '20px 0' }}>
+              <Input
+                id={'ipAddress'}
+                value={camSelected?.ipAddress}
+                placeholder="ipAddress"
+                prefix={<SendOutlined />}
+                onChange={handleOnchange}
+              />
             </div>
             <div style={{ width: '50%' }}>
-              <Input placeholder="Output" prefix={<SendOutlined />} />
+              <Input
+                onChange={handleOnchange}
+                id={'output'}
+                value={camSelected?.output}
+                placeholder="Output"
+                prefix={<SendOutlined />}
+              />
             </div>
-            <div style={{ width: '50%' }}>
-              <Input placeholder="Input" prefix={<SendOutlined />} />
-            </div>
-            <div style={{ display: 'flex' }}>
+            <div style={{ display: 'flex', margin: '20px 0' }}>
               <div style={{ width: '50%', marginRight: 20 }}>
-                <Input placeholder="Link" prefix={<SendOutlined />} />
+                <Input
+                  onChange={handleOnchange}
+                  id={'input'}
+                  value={camSelected?.input}
+                  placeholder="Input"
+                  prefix={<SendOutlined />}
+                />
               </div>
               <Button onClick={CheckConnection}>Check connection</Button>
             </div>
-            <div style={{ width: '50%' }}>
-              <Select
-                defaultValue="google"
-                style={{ width: 120 }}
-                options={[
-                  { value: 'google', label: 'google' },
-                  { value: 'cloudinary', label: 'cloudinary' }
-                ]}
+            <div style={{ display: 'flex' }}>
+              <div style={{ width: '50%' }}>
+                <div value={camSelected?.providerName}>
+                  <Select
+                    defaultValue="google"
+                    id={'providerName'}
+                    style={{ width: 120 }}
+                    options={[{ value: 'google', label: 'google' }]}
+                  />
+                </div>
+                <div style={{ margin: '20px  0' }}>
+                  <Input
+                    value={camSelected?.config?.name}
+                    placeholder="storage name"
+                    prefix={<SendOutlined />}
+                    onChange={e =>
+                      setCamSelected({ ...camSelected, config: { ...camSelected.config, name: e.target.value } })
+                    }
+                  />
+                </div>
+              </div>
+              <div>
+                <Upload
+                  accept=".json"
+                  showUploadList={false}
+                  customRequest={({ file, onSuccess }) => {
+                    setTimeout(() => {
+                      onSuccess('ok');
+                    }, 0);
+                  }}
+                  onChange={handleFileChange}
+                >
+                  <div style={{ marginLeft: 20 }}>
+                    <Button style={{ height: 50 }} icon={<UploadOutlined />}>
+                      Identity
+                    </Button>
+                    {uploadMessage ? <p style={{ color: 'green' }}>{uploadMessage}</p> : null}
+                  </div>
+                </Upload>
+              </div>
+            </div>
+            <div>
+              <TextArea
+                id={'description'}
+                value={camSelected?.description}
+                placeholder="description"
+                prefix={<SendOutlined />}
+                onChange={handleOnchange}
               />
             </div>
           </Card>

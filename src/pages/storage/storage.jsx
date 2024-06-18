@@ -95,22 +95,24 @@ const CameraCollapse = () => {
                 .filter(([date]) => !searchDate || date.includes(searchDate))
                 .map(([date, storages]) => (
                   <Panel header={date} key={date}>
-                    {storages.map(storage => (
-                      <Button
-                        style={{
-                          boxShadow: '5px 10px #888888;',
-                          border: '1px solid #888888',
-                          margin: '15px',
-                          color: 'black',
-                          width: '30%'
-                        }}
-                        key={storage.name}
-                        type="link"
-                        onClick={() => showModal(storage)}
-                      >
-                        {storage.name}
-                      </Button>
-                    ))}
+                    {storages.map(storage =>
+                      storage.path.includes('m3u8') ? (
+                        <Button
+                          style={{
+                            boxShadow: '5px 10px #888888;',
+                            border: '1px solid #888888',
+                            margin: '15px',
+                            color: 'black',
+                            width: '30%'
+                          }}
+                          key={storage.id}
+                          type="link"
+                          onClick={() => showModal(storage)}
+                        >
+                          {storage.name}
+                        </Button>
+                      ) : null
+                    )}
                   </Panel>
                 ))}
             </Collapse>
