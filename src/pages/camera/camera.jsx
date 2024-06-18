@@ -151,7 +151,7 @@ const Camera = () => {
     httpGet(url)
       .then(res => {
         console.log('resres', res);
-        if (res.status === 1 && res.data.success === true) {
+        if (res.status === 1 && res.data.status === true) {
           notification.success({
             title: 'Connect success',
             message: 'Connect success'
