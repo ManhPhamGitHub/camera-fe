@@ -2,7 +2,22 @@ import './camera.scss';
 import { useEffect, useState } from 'react';
 import { httpGet, httpPost, httpPut } from '../../services/request';
 import { getAPIHostName, removeTimeFromDate, hasEmptyProperties } from '../../utils';
-import { Space, Table, Tag, Col, Row, Input, Select, Card, Button, Switch, notification, Upload, Modal } from 'antd';
+import {
+  Space,
+  Table,
+  Tag,
+  Col,
+  Row,
+  Input,
+  Select,
+  Card,
+  Button,
+  Switch,
+  notification,
+  Upload,
+  Modal,
+  Tooltip
+} from 'antd';
 import { SendOutlined, UploadOutlined, SettingOutlined } from '@ant-design/icons';
 import { channel } from 'process';
 const { TextArea } = Input;
@@ -35,7 +50,6 @@ const Camera = () => {
     getCamConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  console.log('camSelected', camSelected);
 
   const handleUpdateUser = async userId => {
     const url = `${getAPIHostName()}/camera`;
@@ -124,7 +138,9 @@ const Camera = () => {
         input: record.input,
         output: record.output,
         providerName: record.provider.providerName,
-        config: record.provider.config
+        config: record.provider.config,
+        resolution: record.resolution,
+        crf: record.crf
       });
       setSettingCam({
         idCam: record.cam.id,
@@ -283,23 +299,55 @@ const Camera = () => {
                 onChange={handleOnchange}
               />
             </div>
-            <div style={{ width: '50%', margin: '20px 0' }}>
-              <Input
-                id={'ipAddress'}
-                value={camSelected?.ipAddress}
-                placeholder="ipAddress"
-                prefix={<SendOutlined />}
-                onChange={handleOnchange}
-              />
+            <div style={{ display: 'flex', margin: '20px 0' }}>
+              <div style={{ width: '50%', marginRight: 20 }}>
+                <Input
+                  onChange={handleOnchange}
+                  id={'ipAddress'}
+                  value={camSelected?.ipAddress}
+                  placeholder="ipAddress"
+                  prefix={<SendOutlined />}
+                />
+              </div>
+              <div style={{ width: '30%' }}>
+                <Tooltip title="BitRate Camera , khuyến nghị sử dụng mặc định là 23 , bitrate càng cao chất lượng hình ảnh thấp và dung lượng file sẽ thấp và ngược lại">
+                  <Input
+                    type="number"
+                    onChange={handleOnchange}
+                    id={'crf'}
+                    value={camSelected?.crf}
+                    placeholder="crf"
+                    prefix={<SendOutlined />}
+                  />
+                </Tooltip>
+              </div>
             </div>
-            <div style={{ width: '50%' }}>
-              <Input
-                onChange={handleOnchange}
-                id={'output'}
-                value={camSelected?.output}
-                placeholder="Output"
-                prefix={<SendOutlined />}
-              />
+            <div style={{ display: 'flex' }}>
+              <div style={{ width: '50%', marginRight: 20 }}>
+                <Input
+                  onChange={handleOnchange}
+                  id={'output'}
+                  value={camSelected?.output}
+                  placeholder="Output"
+                  prefix={<SendOutlined />}
+                />
+              </div>
+              <div style={{ width: '30%' }}>
+                <Tooltip title="Độ phân giải">
+                  <Select
+                    value={camSelected?.resolution}
+                    id={'providerName'}
+                    style={{ width: '100%' }}
+                    placeholder="Resolution"
+                    options={[
+                      { value: '480p', label: '480p' },
+                      { value: '720p', label: '720p' },
+                      { value: '1080p', label: '1080p' }
+                    ]}
+                    onChange={value => setCamSelected({ ...camSelected, resolution: value })}
+                  />
+                </Tooltip>
+              </div>
             </div>
             <div style={{ display: 'flex', margin: '20px 0' }}>
               <div style={{ width: '50%', marginRight: 20 }}>
@@ -318,9 +366,8 @@ const Camera = () => {
                 <div>
                   <Select
                     value={camSelected?.providerName}
-                    defaultValue="google-cloud"
                     id={'providerName'}
-                    style={{ width: 120 }}
+                    style={{ width: '100%' }}
                     options={[{ value: 'google-cloud', label: 'google-cloud' }]}
                     onChange={value => setCamSelected({ ...camSelected, providerName: value })}
                   />
@@ -375,7 +422,7 @@ const Camera = () => {
         <div>
           <Select
             value={settingCam.channel}
-            style={{ width: 120 }}
+            style={{ width: 120, marginBottom: 20 }}
             options={[
               { value: 'discord', label: 'discord' },
               { value: 'email', label: 'email', disabled: true }
