@@ -2,7 +2,8 @@ const routes = {
   home: '/',
   camera: '/camera',
   error: '/*',
-  storage: '/storage'
+  storage: '/storage',
+  callback: '/callback'
 };
 
 export default routes;

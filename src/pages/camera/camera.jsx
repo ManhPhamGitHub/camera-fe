@@ -113,6 +113,7 @@ const Camera = () => {
   const handleSwitchChange = (checked, record) => {
     setCamConfig(prevState => {
       return prevState.map(item => {
+        console.log('itemitemitem', item);
         if (item.id === record.id) {
           return {
             ...item,
@@ -148,9 +149,6 @@ const Camera = () => {
         config: { link: record.notis.length ? record.notis[0].config.link : '' }
       });
     }
-  };
-  const rowClassName = record => {
-    return record.id === camSelected?.id ? 'selected-row' : '';
   };
   if (cameraConfig.length === 0) return <></>;
 
@@ -264,7 +262,6 @@ const Camera = () => {
               }
             };
           }}
-          rowClassName={rowClassName}
         />
       </Col>
       {camSelected ? (
@@ -425,7 +422,7 @@ const Camera = () => {
             style={{ width: 120, marginBottom: 20 }}
             options={[
               { value: 'discord', label: 'discord' },
-              { value: 'email', label: 'email', disabled: true }
+              { value: 'email', label: 'email' }
             ]}
             onChange={value => setSettingCam({ ...settingCam, channel: value })}
           />

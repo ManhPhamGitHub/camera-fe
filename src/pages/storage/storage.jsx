@@ -6,7 +6,6 @@ import { httpGet } from '../../services/request';
 import { getAPIHostName } from '../../utils';
 
 const { Panel } = Collapse;
-
 const CameraCollapse = () => {
   const [visible, setVisible] = useState(false);
   const [selectedStorage, setSelectedStorage] = useState(null);
@@ -69,7 +68,6 @@ const CameraCollapse = () => {
       return acc;
     }, {});
   };
-  console.log('selectedStorage', selectedStorage);
   if (cameraConfig.length === 0) return <></>;
   return (
     <div>
