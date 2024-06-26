@@ -25,7 +25,6 @@ const Home = () => {
       const url = `${getAPIHostName()}/camera/config`;
       httpGet(url)
         .then(res => {
-          console.log('resres', res);
           if (res.status === 1) {
             setCamConfig(res.data);
             setCameraOpen(res.data[0]);
