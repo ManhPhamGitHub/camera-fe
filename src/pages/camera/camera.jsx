@@ -19,11 +19,15 @@ import {
   Tooltip
 } from 'antd';
 import { SendOutlined, UploadOutlined, SettingOutlined } from '@ant-design/icons';
-import { channel } from 'process';
+
 const { TextArea } = Input;
+const url = `${getAPIHostName()}/camera/config`;
 
 const Camera = () => {
-  const defaultSettingCam = { channel: 'discord', config: { link: '' } };
+  const defaultSettingCam = [
+    { channel: 'discord', config: { link: '' } },
+    { channel: 'email', config: { link: '' } }
+  ];
   const [camSelected, setCamSelected] = useState();
   const [settingCam, setSettingCam] = useState(defaultSettingCam);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,35 +35,28 @@ const Camera = () => {
   const [cameraConfig, setCamConfig] = useState([]);
   const [uploadMessage, setUploadMessage] = useState();
 
-  useEffect(() => {
-    const getCamConfig = () => {
-      const url = `${getAPIHostName()}/camera/config`;
-      httpGet(url)
-        .then(res => {
-          if (res.status === 1) {
-            setCamConfig(res.data);
-          }
-        })
-        .catch(() => {
-          notification.error({
-            title: 'Lỗi',
-            message: 'Không thể lấy thông tin người dùng'
-          });
+  const getCamConfig = () => {
+    httpGet(url)
+      .then(res => {
+        if (res.status === 1) {
+          setCamConfig(res.data);
+        }
+      })
+      .catch(() => {
+        notification.error({
+          title: 'Lỗi',
+          message: 'Không thể lấy thông tin người dùng'
         });
-    };
+      });
+  };
+
+  useEffect(() => {
     getCamConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleUpdateUser = async userId => {
+  const updateCamConfig = camSelected => {
     const url = `${getAPIHostName()}/camera`;
-    if (hasEmptyProperties(camSelected)) {
-      notification.error({
-        title: 'Lỗi',
-        message: 'Vui lòng điền đầy đủ thông tin'
-      });
-      return;
-    }
     httpPost(url, camSelected)
       .then(res => {
         if (res.success) {
@@ -67,7 +64,9 @@ const Camera = () => {
             title: 'Thành công',
             message: 'Cập nhật thông tin thành công'
           });
-          camSelected(null);
+          setCamSelected(null);
+
+          getCamConfig();
         }
       })
       .catch(() => {
@@ -76,6 +75,18 @@ const Camera = () => {
           message: 'Cập nhật thông tin thất bại'
         });
       });
+  };
+
+  const handleUpdateUser = async userId => {
+    if (hasEmptyProperties(camSelected)) {
+      notification.error({
+        title: 'Lỗi',
+        message: 'Vui lòng điền đầy đủ thông tin'
+      });
+      return;
+    }
+
+    updateCamConfig(camSelected);
   };
   const columns = [
     {
@@ -92,7 +103,7 @@ const Camera = () => {
       title: 'startTime',
       dataIndex: ['cam', 'startTime'],
       key: 'cam.startTime',
-      render: (_, record) => <Tag color="green">{removeTimeFromDate(record.cam.startTime)}</Tag>
+      render: (_, record) => <Tag color="green">{removeTimeFromDate(record?.cam.startTime)}</Tag>
     },
     {
       title: 'ipAddress',
@@ -104,27 +115,23 @@ const Camera = () => {
       key: 'action',
       render: (event, record) => (
         <div onClick={e => e.stopPropagation()}>
-          <Switch checked={record.cam.active} onChange={checked => handleSwitchChange(checked, record)} />
+          <Switch checked={record?.cam.active} onChange={checked => handleSwitchChange(checked, record)} />
         </div>
       )
     }
   ];
 
-  const handleSwitchChange = (checked, record) => {
-    setCamConfig(prevState => {
-      return prevState.map(item => {
-        console.log('itemitemitem', item);
-        if (item.id === record.id) {
-          return {
-            ...item,
-            cam: {
-              ...item.cam,
-              active: checked
-            }
-          };
-        }
-      });
-    });
+  const handleSwitchChange = async (checked, record) => {
+    for (const item of cameraConfig) {
+      if (item.id === record.id) {
+        item['cam'] = {
+          ...item.cam,
+          active: checked
+        };
+
+        await updateCamConfig(item);
+      }
+    }
   };
 
   const handleRowClick = record => {
@@ -143,14 +150,10 @@ const Camera = () => {
         resolution: record.resolution,
         crf: record.crf
       });
-      setSettingCam({
-        idCam: record.cam.id,
-        channel: record.notis.length ? record.notis[0].channel : 'discord',
-        config: { link: record.notis.length ? record.notis[0].config.link : '' }
-      });
+      setSettingCam(record.notis);
     }
   };
-  if (cameraConfig.length === 0) return <></>;
+  // if (cameraConfig.length === 0) return <></>;
 
   const CheckConnection = () => {
     if (!camSelected?.input || !camSelected?.input.includes('rtsp')) {
@@ -222,21 +225,20 @@ const Camera = () => {
   };
 
   const handleOk = () => {
-    const url = `${getAPIHostName()}/camera/${settingCam.idCam}`;
+    const url = `${getAPIHostName()}/camera/${settingCam[0].id}/noti`;
 
     httpPut(url, settingCam)
       .then(res => {
-        if (res.success) {
+        if (res.status === 1) {
           notification.success({
             title: 'Thành công',
             message: 'Cập nhật thông tin thành công'
           });
           setIsModalOpen(false);
-          setSettingCam(defaultSettingCam);
-          camSelected(null);
         }
       })
-      .catch(() => {
+      .catch(error => {
+        console.log('error', error);
         notification.error({
           title: 'Lỗi',
           message: 'Cập nhật thông tin thất bại'
@@ -416,30 +418,30 @@ const Camera = () => {
         </Col>
       ) : null}
       <Modal title="Notification Setting" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        <div>
-          <Select
-            value={settingCam.channel}
-            style={{ width: 120, marginBottom: 20 }}
-            options={[
-              { value: 'discord', label: 'discord' },
-              { value: 'email', label: 'email' }
-            ]}
-            onChange={value => setSettingCam({ ...settingCam, channel: value })}
-          />
-        </div>
-        <Input
-          value={settingCam.config.link}
-          placeholder="Link URL or email"
-          onChange={e =>
-            setSettingCam({
-              ...settingCam,
-              config: {
-                ...settingCam?.config,
-                link: e.target.value
-              }
-            })
-          }
-        />
+        {settingCam.map((item, index) => {
+          return (
+            <div>
+              <div style={{ marginBottom: 20 }}>
+                <Select
+                  value={item?.channel}
+                  style={{ width: 120, marginRight: 10 }}
+                  options={[{ value: 'discord', label: 'discord' }]}
+                  // onChange={value => setSettingCam({ ...settingCam, channel: value })}
+                />
+              </div>
+              <Input
+                value={item.config.link}
+                placeholder="Link or receiver"
+                onChange={e =>
+                  setSettingCam(prevState => {
+                    prevState[index].config.link = e.target.value;
+                    return [...prevState];
+                  })
+                }
+              />
+            </div>
+          );
+        })}
       </Modal>
     </Row>
   );

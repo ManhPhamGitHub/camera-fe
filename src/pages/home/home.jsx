@@ -50,13 +50,13 @@ const Home = () => {
     carouselRef.current.prev();
   };
   console.log('cameraConfig', cameraConfig);
-  if (!cameraConfig.length) return <></>;
+  // if (!cameraConfig.length) return <></>;
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 30 }}>
         <HLSVideoPlayer
           videoUrl={`${getAPIUrl()}/storage/${
-            cameraOpen.cam.name
+            cameraOpen?.cam.name
           }/${dateFormmated}/${currentHours}/output_${dateFormmated}_${currentHours}.m3u8`}
         />
       </div>
@@ -64,12 +64,7 @@ const Home = () => {
         <Button onClick={prev} style={{ position: 'absolute', top: 50, left: 0 }}>
           Prev
         </Button>
-        <Carousel
-          style={{ margin: '0 50px' }}
-          ref={carouselRef}
-          slidesToScroll={slidesToShow}
-          slidesToShow={3}
-        >
+        <Carousel style={{ margin: '0 50px' }} ref={carouselRef} slidesToScroll={slidesToShow} slidesToShow={3}>
           {cameraConfig.map(camera => (
             <div style={{ width: '100%' }} key={camera.id}>
               <Card hoverable style={{ width: '90%', margin: 'auto' }} onClick={() => setCameraOpen(camera)}>
