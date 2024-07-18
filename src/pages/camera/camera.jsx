@@ -59,14 +59,19 @@ const Camera = () => {
     const url = `${getAPIHostName()}/camera`;
     httpPost(url, camSelected)
       .then(res => {
-        if (res.success) {
+        if (res.status === 1) {
           notification.success({
             title: 'Thành công',
             message: 'Cập nhật thông tin thành công'
           });
           setCamSelected(null);
-
+          setUploadMessage('');
           getCamConfig();
+        } else {
+          notification.error({
+            title: 'Lỗi',
+            message: 'Cập nhật thông tin thất bại'
+          });
         }
       })
       .catch(() => {
@@ -78,7 +83,9 @@ const Camera = () => {
   };
 
   const handleUpdateUser = async userId => {
-    if (hasEmptyProperties(camSelected)) {
+    const listInput = ['name', 'ipAddress', 'output', 'input', 'crf', 'providerName', 'resolution', 'description'];
+
+    if (!Object.keys(camSelected).length || listInput.filter(e => !camSelected[e]).length > 0) {
       notification.error({
         title: 'Lỗi',
         message: 'Vui lòng điền đầy đủ thông tin'
@@ -122,16 +129,7 @@ const Camera = () => {
   ];
 
   const handleSwitchChange = async (checked, record) => {
-    for (const item of cameraConfig) {
-      if (item.id === record.id) {
-        item['cam'] = {
-          ...item.cam,
-          active: checked
-        };
-
-        await updateCamConfig(item);
-      }
-    }
+    await updateCamConfig({ ...record, active: checked });
   };
 
   const handleRowClick = record => {
@@ -167,7 +165,6 @@ const Camera = () => {
     const url = `${getAPIHostName()}/camera/check-connection?url=${camSelected?.input}`;
     httpGet(url)
       .then(res => {
-        console.log('resres', res);
         if (res.status === 1 && res.data.status === true) {
           notification.success({
             title: 'Connect success',
@@ -189,7 +186,6 @@ const Camera = () => {
   };
 
   const handleOnchange = e => {
-    console.log('e', e.target);
     setCamSelected({
       ...camSelected,
       [e.target.id]: e.target.value
@@ -235,6 +231,11 @@ const Camera = () => {
             message: 'Cập nhật thông tin thành công'
           });
           setIsModalOpen(false);
+        } else {
+          notification.error({
+            title: 'Lỗi',
+            message: 'Cập nhật thông tin thất bại'
+          });
         }
       })
       .catch(error => {
@@ -252,6 +253,15 @@ const Camera = () => {
 
   return (
     <Row justify={'space-between'}>
+      {/* <a href="https://github.com/login/oauth/authorize?client_id=Iv23lilYDG3TcfcXZNCh&scope=repo,admin:repo_hook">
+        Camera
+      </a>
+      <a
+        href="https://gitlab.com/oauth/authorize?client_id=5bfd621387a641d5fc19be4fb451005852bd78558919cbf607093ae617cb93b7&redirect_uri=http://42.96.58.232:8000/api/v1/camera/callback
+&response_type=code"
+      >
+        git lab
+      </a> */}
       <Col span={8}>
         <Button onClick={() => (camSelected ? setCamSelected(null) : setCamSelected({}))}>Add</Button>
         <Table
