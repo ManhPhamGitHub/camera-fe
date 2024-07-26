@@ -225,7 +225,7 @@ const Camera = () => {
 
   const handleOk = () => {
     const url = `${getAPIHostName()}/camera/${camSelected.idCam}/noti`;
-    httpPut(url, { ...settingCam })
+    httpPut(url, settingCam)
       .then(res => {
         if (res.status === 1) {
           notification.success({
