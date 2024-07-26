@@ -150,6 +150,12 @@ const Camera = () => {
         idCam: record.cam.id
       });
       if (record.notis.length > 0) {
+        if (record.notis.length < 2 && record.notis[0].channel === 'discord') {
+          record.notis.push({ channel: 'email', config: { link: '' } });
+        } else if (record.notis.length < 2 && record.notis[0].channel === 'email') {
+          record.notis.push({ channel: 'discord', config: { link: '' } });
+        }
+
         setSettingCam(record.notis);
       }
     }
