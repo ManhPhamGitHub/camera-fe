@@ -36,7 +36,7 @@ const Camera = () => {
   const [uploadMessage, setUploadMessage] = useState();
 
   const getCamConfig = () => {
-    httpGet(url)
+    httpGet(`${url}?active=${false}`)
       .then(res => {
         if (res.status === 1) {
           setCamConfig(res.data);
@@ -146,9 +146,12 @@ const Camera = () => {
         providerName: record.provider.providerName,
         config: record.provider.config,
         resolution: record.resolution,
-        crf: record.crf
+        crf: record.crf,
+        idCam: record.cam.id
       });
-      setSettingCam(record.notis);
+      if (record.notis.length > 0) {
+        setSettingCam(record.notis);
+      }
     }
   };
   // if (cameraConfig.length === 0) return <></>;
@@ -221,9 +224,8 @@ const Camera = () => {
   };
 
   const handleOk = () => {
-    const url = `${getAPIHostName()}/camera/${settingCam[0].id}/noti`;
-
-    httpPut(url, settingCam)
+    const url = `${getAPIHostName()}/camera/${camSelected.idCam}/noti`;
+    httpPut(url, { ...settingCam })
       .then(res => {
         if (res.status === 1) {
           notification.success({
@@ -445,6 +447,7 @@ const Camera = () => {
                 onChange={e =>
                   setSettingCam(prevState => {
                     prevState[index].config.link = e.target.value;
+                    prevState[index].idCam = camSelected.idCam;
                     return [...prevState];
                   })
                 }

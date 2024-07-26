@@ -32,16 +32,19 @@ export const VideoPlayer = props => {
         videojs.log('player is ready');
         onReady && onReady(player);
       }));
+      player.muted(true);
 
       // You could update an existing player in the `else` block here
       // on prop change, for example:
     } else {
       const player = playerRef.current;
+      player.dispose();
 
+      // player.muted(true);
       // player.autoplay(options.autoplay);
       player.src(options.sources);
     }
-  }, [options, videoRef]);
+  }, [options, videoRef, props.src]);
 
   // Dispose the Video.js player when the functional component unmounts
   useEffect(() => {

@@ -134,7 +134,9 @@ const CameraCollapse = () => {
               type: 'application/x-mpegURL'
             }
           ]}
+          src={`${selectedStorage?.url}/${selectedStorage?.path}`}
           onReady={handlePlayerReady}
+          visible={visible}
         />
       </Modal>
     </div>
