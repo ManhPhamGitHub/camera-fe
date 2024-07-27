@@ -83,8 +83,17 @@ const Camera = () => {
   };
 
   const handleUpdateUser = async userId => {
-    const listInput = ['name', 'ipAddress', 'output', 'input', 'crf', 'providerName', 'resolution', 'description'];
-
+    const listInput = [
+      'name',
+      'ipAddress',
+      'output',
+      'input',
+      'crf',
+      'providerName',
+      'resolution',
+      'description',
+      'identify'
+    ];
     if (!Object.keys(camSelected).length || listInput.filter(e => !camSelected[e]).length > 0) {
       notification.error({
         title: 'Lỗi',
@@ -129,7 +138,7 @@ const Camera = () => {
   ];
 
   const handleSwitchChange = async (checked, record) => {
-    await updateCamConfig({ ...record, active: checked });
+    await updateCamConfig({ ...record, active: checked, isEnable: checked });
   };
 
   const handleRowClick = record => {
@@ -257,6 +266,7 @@ const Camera = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    setSettingCam(defaultSettingCam);
   };
 
   return (
