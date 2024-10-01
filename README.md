@@ -23,7 +23,7 @@ EXAMPLE: `git commit -m "implement ui dashboard #9`.
 
 #EMAIL: admin1@gmail.com.\
 #PASSWORD: 123456
-
+123
 ### `npm run build`
 
 Builds the app for production to the `build` folder.\
