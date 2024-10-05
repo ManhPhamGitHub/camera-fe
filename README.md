@@ -23,7 +23,7 @@ EXAMPLE: `git commit -m "implement ui dashboard #9`.
 
 #EMAIL: admin1@gmail.com.\
 #PASSWORD: 123456
-12323123
+12312
 ### `npm run build`
 
 23mm
