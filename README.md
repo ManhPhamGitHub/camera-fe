@@ -20,7 +20,7 @@ EXAMPLE: `git commit -m "implement ui dashboard #9`.
 #PASSWORD: 123456
 
 ### ACCOUNT TEST2 with ADMIN role
-21332
+
 #EMAIL: admin1@gmail.com.\
 #PASSWORD: 123456
 12323123
