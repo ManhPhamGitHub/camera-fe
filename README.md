@@ -15,7 +15,7 @@ COMMAND: `git commit -m "comment message #issue id"`.\
 EXAMPLE: `git commit -m "implement ui dashboard #9`.
 1231
 ### ACCOUNT TEST1 with HR role
-12312
+312
 #EMAIL: hr@gmail.com.\
 #PASSWORD: 123456
 123eqwq
