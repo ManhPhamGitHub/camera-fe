@@ -18,7 +18,7 @@ EXAMPLE: `git commit -m "implement ui dashboard #9`.
 12312
 #EMAIL: hr@gmail.com.\
 #PASSWORD: 123456
-123
+123eqwq
 ### ACCOUNT TEST2 with ADMIN role
 #EMAIL: admin1@gmail.com.\
 #PASSWORD: 123456
