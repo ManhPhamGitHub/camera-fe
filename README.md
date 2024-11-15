@@ -22,7 +22,7 @@ ewq32112312
 ### ACCOUNT TEST2 with ADMIN role
 #EMAIL: admin1@gmail.com.\
 #PASSWORD: 123456
-qweqw23
+qweqw23312
 ### `npm run build`
 
 
