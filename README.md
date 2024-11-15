@@ -22,8 +22,8 @@ EXAMPLE: `git commit -m "implement ui dashboard #9`.
 ### ACCOUNT TEST2 with ADMIN role
 #EMAIL: admin1@gmail.com.\
 #PASSWORD: 123456
-213213
-### `npm run build`
+213213321
+### `npm run build`12
 
 
 Builds the app for production to the `build` folder.\
