@@ -3,7 +3,7 @@
 RUN COMMAND BY FOLLOWING.\
 #1. `npm install` || `yarn install` || `npx install`.\
 #2. `npm start` || `yarn start` || `npx start`.
-
+1
 ### WORK FLOW
 2
 #1. Create new branch with the following convention name: feature/issue id_branch name.\
