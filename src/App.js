@@ -3,6 +3,8 @@ import PageLayout from './layout';
 import { Routes, Route } from 'react-router-dom';
 import { Fragment } from 'react';
 function App() {
+  console.log('12312312');
+  
   return (
     <Routes>
       {publicRoutes.map((route, index) => {
